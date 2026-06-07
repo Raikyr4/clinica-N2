@@ -1,0 +1,63 @@
+classDiagram
+    class Paciente {
+        +int codigo
+        +string nome
+        +string nomeMae
+        +date dataNasc
+        +string telefone
+        +string email
+    }
+    class Medico {
+        +int crm
+        +string nome
+        +string especialidade
+    }
+    class EspecialidadeMedica {
+        +int codEspecialidade
+        +string nome
+        +string descricao
+    }
+    class MedicoEspecialidade {
+        +int crm
+        +int codEspecialidade
+        +string modalidade
+    }
+    class AgendaAtendimento {
+        +int codAgenda
+        +int crm
+        +int codEspecialidade
+        +date data
+        +time horario
+        +bool disponivel
+    }
+    class Consulta {
+        +int codConsulta
+        +int codPaciente
+        +int crm
+        +int codEspecialidade
+        +date data
+        +time horario
+        +string modalidade
+        +string status
+    }
+    class PlanoSaude {
+        +int codPlano
+        +string nome
+        +string operadora
+    }
+    class ListaEspera {
+        +int id
+        +int codPaciente
+        +int crm
+        +int codEspecialidade
+        +datetime dataInclusao
+        +int posicaoFila
+    }
+
+    Paciente "1" --> "*" Consulta : tem
+    Medico "1" --> "*" Consulta : realiza
+    Medico "1" --> "*" MedicoEspecialidade : possui
+    EspecialidadeMedica "1" --> "*" MedicoEspecialidade : categoriza
+    Medico "1" --> "*" AgendaAtendimento : tem agenda
+    Paciente "1" --> "*" ListaEspera : entra em
+    Medico "1" --> "*" ListaEspera : preferido em

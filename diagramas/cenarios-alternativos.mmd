@@ -1,0 +1,28 @@
+flowchart TD
+    E4[Etapa 4 - Agenda]
+
+    E4 -->|Nenhum horário agrada\nCenário 7b| LE
+    E4 -->|Ver outros horários\nCenário 7a| E4_MAIS[Incrementa offset\nNovos 3 horários]
+    E4_MAIS --> E4
+
+    E4 -->|Seleciona horário| E5[Etapa 5 - Paciente]
+
+    LE[Lista de Espera CSU-LE]
+    LE --> LE1[Buscar Paciente]
+    LE1 -->|Não encontrado\nCenário 10a| MODAL[Modal Cadastro\nNovo Paciente]
+    MODAL --> LE2
+    LE1 -->|Encontrado| LE2[Confirmar Inclusão]
+    LE2 --> LE3[Comprovante\nPosição na Fila]
+
+    E5 -->|Paciente não encontrado| MODAL2[Modal Cadastro\nNovo Paciente]
+    MODAL2 -->|Paciente cadastrado\nCenário 10a| E6[Etapa 6 - Confirmação]
+    E5 -->|Paciente encontrado| E6
+
+    E3[Etapa 3 - Médico] -->|Sem preferência\nCenário A1| E4
+    E3 -->|Seleciona médico| E4
+
+    style LE fill:#7C3AED,color:#fff,stroke:#7C3AED
+    style LE3 fill:#166534,color:#fff,stroke:#166534
+    style MODAL fill:#2E74B5,color:#fff,stroke:#2E74B5
+    style MODAL2 fill:#2E74B5,color:#fff,stroke:#2E74B5
+    style E4_MAIS fill:#D97706,color:#fff,stroke:#D97706

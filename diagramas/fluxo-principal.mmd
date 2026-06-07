@@ -1,0 +1,37 @@
+flowchart TD
+    LP[Landing Page\nClínica SafeCare] -->|Agendar consulta| E1
+
+    E1[Etapa 1\nModalidade\nParticular / Convênio] --> E2
+    E2[Etapa 2\nEspecialidade Médica] --> E3
+    E3[Etapa 3\nSeleção do Médico]
+    E3 -->|Seleciona médico| E4
+    E3 -->|Sem preferência| E4
+
+    E4[Etapa 4\nAgenda - Data e Horário]
+    E4 -->|Seleciona horário| API_REG
+
+    API_REG{registrarOpcao\nAPI}
+    API_REG -->|Sucesso| E5
+    API_REG -->|Horário ocupado| TOAST_ERR[Toast: Horário indisponível]
+    TOAST_ERR --> E4
+
+    E5[Etapa 5\nIdentificação do Paciente]
+    E5 -->|Paciente encontrado e selecionado| E6
+
+    E6[Etapa 6\nRevisão dos Dados]
+    E6 -->|Confirmar agendamento| API_CONF
+
+    API_CONF{confirmarConsulta\nAPI}
+    API_CONF -->|Sucesso| E7
+    API_CONF -->|Erro| TOAST_ERR2[Toast: Erro ao confirmar]
+    TOAST_ERR2 --> E6
+
+    E7[Etapa 7\nComprovante de Agendamento]
+    E7 --> FIM[Novo agendamento\nou início]
+
+    style LP fill:#1B4E8A,color:#fff,stroke:#1B4E8A
+    style E7 fill:#166534,color:#fff,stroke:#166534
+    style API_REG fill:#F59E0B,color:#fff,stroke:#F59E0B
+    style API_CONF fill:#F59E0B,color:#fff,stroke:#F59E0B
+    style TOAST_ERR fill:#DC2626,color:#fff,stroke:#DC2626
+    style TOAST_ERR2 fill:#DC2626,color:#fff,stroke:#DC2626
