@@ -1,4 +1,4 @@
-import { ArrowLeft, Heart, RotateCcw } from "lucide-react";
+import { ArrowLeft, Heart, RotateCcw, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AgendamentoProvider, useAgendamento } from "@/context/AgendamentoContext";
 import { Stepper } from "@/components/Stepper";
@@ -47,6 +47,13 @@ function AgendamentoConteudo() {
   const { state, dispatch } = useAgendamento();
   const navigate = useNavigate();
   const texto = textos[state.etapa];
+  const cancelarAgendamento = () => {
+    const confirmar = window.confirm("Deseja desistir do agendamento? O caso de uso sera encerrado.");
+    if (confirmar) {
+      dispatch({ type: "REINICIAR" });
+      navigate("/");
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-accent/70 to-background px-4 py-6">
@@ -69,10 +76,18 @@ function AgendamentoConteudo() {
                 </p>
               </div>
             </div>
-            <Button variant="outline" onClick={() => dispatch({ type: "REINICIAR" })}>
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Novo agendamento
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button variant="outline" onClick={() => dispatch({ type: "REINICIAR" })}>
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Novo agendamento
+              </Button>
+              {state.etapa !== "COMPROVANTE" && (
+                <Button variant="outline" onClick={cancelarAgendamento}>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Desistir
+                </Button>
+              )}
+            </div>
           </div>
         </header>
 

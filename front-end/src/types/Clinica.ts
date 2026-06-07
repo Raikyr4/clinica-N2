@@ -42,6 +42,11 @@ export interface Paciente {
   planoSaude?: string;
 }
 
+export interface RegistrarOpcaoResponse {
+  opcaoAgendamentoId: string;
+  mensagem: string;
+}
+
 export interface CadastrarPacienteRequest {
   nome: string;
   nomeMae: string;
@@ -66,6 +71,7 @@ export interface ConfirmarConsultaRequest {
   codPaciente: number;
   tipo: Modalidade;
   codPlanoSaude?: number | null;
+  opcaoAgendamentoId?: string | null;
 }
 
 export interface ComprovanteAgendamento {

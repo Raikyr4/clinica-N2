@@ -13,8 +13,7 @@ public sealed class ConsultasController(ConsultaService service) : ControllerBas
     {
         try
         {
-            await service.RegistrarOpcaoAsync(request, cancellationToken);
-            return Ok(new { mensagem = "Horario reservado temporariamente para confirmacao." });
+            return Ok(await service.RegistrarOpcaoAsync(request, cancellationToken));
         }
         catch (InvalidOperationException ex)
         {

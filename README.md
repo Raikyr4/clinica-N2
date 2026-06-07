@@ -1,6 +1,14 @@
-# Clinica N2-2
+﻿# Clinica N2-2
 
-Protótipo acadêmico para o caso de uso **CSU1 - Agendar Consulta** de uma clínica médica.
+ProtÃ³tipo acadÃªmico para o caso de uso **CSU1 - Agendar Consulta** de uma clÃ­nica mÃ©dica.
+
+## Documentacao completa
+
+A documentacao detalhada do projeto, casos de uso, fluxos alternativos, arquitetura, banco, APIs e testes esta em:
+
+```text
+docs/documentacao-detalhada-projeto.md
+```
 
 ## Stack
 
@@ -16,7 +24,9 @@ Protótipo acadêmico para o caso de uso **CSU1 - Agendar Consulta** de uma clí
 back-end/Scripts/database.sql
 ```
 
-O script cria as tabelas dentro do banco `postgres` e insere dados de teste para especialidades, médicos, planos, agendas e pacientes.
+O script cria as tabelas dentro do banco `postgres` e insere dados de teste para especialidades, mÃ©dicos, planos, agendas e pacientes.
+
+O script tambem cria `opcoes_agendamento` e o indice `ux_consultas_horario_ocupado`, usados para registrar a opcao escolhida antes da confirmacao e impedir dois agendamentos ativos no mesmo horario.
 
 ## Connection string
 
@@ -26,7 +36,7 @@ Arquivo:
 back-end/ClinicaN2.Api/appsettings.json
 ```
 
-Valor padrão:
+Valor padrÃ£o:
 
 ```text
 Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=110903
@@ -61,13 +71,13 @@ http://localhost:5173
 
 ## Fluxo principal
 
-1. Escolher modalidade: particular ou convênio.
-2. Escolher plano, quando a modalidade for convênio.
+1. Escolher modalidade: particular ou convÃªnio.
+2. Escolher plano, quando a modalidade for convÃªnio.
 3. Escolher especialidade.
-4. Escolher médico ou seguir sem preferência.
-5. Escolher uma das três primeiras agendas disponíveis.
-6. Buscar paciente por nome e nome da mãe.
-7. Cadastrar paciente, se necessário.
+4. Escolher mÃ©dico ou seguir sem preferÃªncia.
+5. Escolher uma das trÃªs primeiras agendas disponÃ­veis.
+6. Buscar paciente por nome e nome da mÃ£e.
+7. Cadastrar paciente, se necessÃ¡rio.
 8. Revisar dados.
 9. Confirmar consulta.
 10. Visualizar comprovante.
@@ -78,21 +88,22 @@ Planos:
 
 - Unimed
 - Amil
-- Bradesco Saúde
+- Bradesco SaÃºde
 
 Pacientes:
 
-- Maria Oliveira / mãe: Joana Oliveira
-- João Pereira / mãe: Lucia Pereira
-- Pedro Santos / mãe: Fernanda Santos
+- Maria Oliveira / mÃ£e: Joana Oliveira
+- JoÃ£o Pereira / mÃ£e: Lucia Pereira
+- Pedro Santos / mÃ£e: Fernanda Santos
 
-Médicos:
+MÃ©dicos:
 
-- Dra. Ana Martins, CRM 1234567, Cardiologia e Clínica Geral
+- Dra. Ana Martins, CRM 1234567, Cardiologia e ClÃ­nica Geral
 - Dr. Bruno Lima, CRM 2345678, Dermatologia
 - Dra. Carla Souza, CRM 3456789, Pediatria
-- Dr. Diego Ramos, CRM 4567890, Ortopedia e Clínica Geral
+- Dr. Diego Ramos, CRM 4567890, Ortopedia e ClÃ­nica Geral
 
-## Observação acadêmica
+## ObservaÃ§Ã£o acadÃªmica
 
-O protótipo simula o processo de agendamento para fins de estudo de Interface Homem-Computador e engenharia de requisitos. Não há autenticação nem integração real com sistemas externos de planos de saúde.
+O protÃ³tipo simula o processo de agendamento para fins de estudo de Interface Homem-Computador e engenharia de requisitos. NÃ£o hÃ¡ autenticaÃ§Ã£o nem integraÃ§Ã£o real com sistemas externos de planos de saÃºde.
+

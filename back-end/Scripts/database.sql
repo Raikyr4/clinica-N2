@@ -4,6 +4,7 @@
 
 drop table if exists lista_espera cascade;
 drop table if exists consultas cascade;
+drop table if exists opcoes_agendamento cascade;
 drop table if exists paciente_plano cascade;
 drop table if exists pacientes cascade;
 drop table if exists agenda_plano cascade;
@@ -78,6 +79,19 @@ create table paciente_plano (
     primary key (cod_paciente, cod_plano_saude)
 );
 
+create table opcoes_agendamento (
+    id uuid primary key,
+    crm_medico numeric(7,0) not null,
+    cod_especialidade numeric(2,0) not null,
+    data date not null,
+    horario time not null,
+    criada_em timestamp not null default now(),
+    expira_em timestamp not null,
+    usada boolean not null default false,
+    foreign key (crm_medico, cod_especialidade)
+        references medico_especialidade(crm_medico, cod_especialidade)
+);
+
 create table consultas (
     codigo bigserial primary key,
     data date not null,
@@ -87,9 +101,12 @@ create table consultas (
     crm_medico numeric(7,0) not null references medicos(crm),
     cod_especialidade numeric(2,0) not null references especialidades_medicas(codigo),
     cod_paciente int not null references pacientes(codigo),
-    criada_em timestamp not null default now(),
-    unique (data, horario, crm_medico, cod_especialidade, situacao)
+    criada_em timestamp not null default now()
 );
+
+create unique index ux_consultas_horario_ocupado
+on consultas (data, horario, crm_medico, cod_especialidade)
+where situacao in (0, 1);
 
 create table lista_espera (
     id bigserial primary key,

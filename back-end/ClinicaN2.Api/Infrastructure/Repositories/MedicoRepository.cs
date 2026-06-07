@@ -26,8 +26,8 @@ public sealed class MedicoRepository(IDbConnectionFactory connectionFactory)
             : """
               select distinct m.crm::int as Crm, m.nome as Nome, m.email as Email, m.telefone as Telefone
               from medicos m
-              join medico_especialidade me on me.crm_medico = m.crm
-              where me.cod_especialidade = @CodEspecialidade
+              join agenda_atendimento a on a.crm_medico = m.crm
+              where a.cod_especialidade = @CodEspecialidade
               order by m.nome
               """;
 

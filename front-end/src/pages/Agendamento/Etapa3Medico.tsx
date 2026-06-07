@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { UserRound, UsersRound } from "lucide-react";
+import { AlertCircle, UserRound, UsersRound } from "lucide-react";
 import { useAgendamento } from "@/context/AgendamentoContext";
 import { listarMedicos } from "@/services/medicoService";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,24 @@ export function Etapa3Medico() {
   });
 
   if (isLoading) return <LoadingSpinner label="Buscando medicos..." />;
+
+  if (data.length === 0) {
+    return (
+      <Card className="border-amber-200 bg-amber-50">
+        <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+          <AlertCircle className="h-10 w-10 text-amber-600" />
+          <h3 className="text-xl font-semibold text-amber-900">Nao ha medicos para esses criterios</h3>
+          <p className="max-w-xl text-sm text-amber-800">
+            Nao foram encontrados medicos que atendem a especialidade, modalidade e plano selecionados.
+            Volte para alterar os dados do agendamento.
+          </p>
+          <Button variant="outline" onClick={() => dispatch({ type: "VOLTAR" })}>
+            Voltar para especialidade
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <section className="space-y-4">

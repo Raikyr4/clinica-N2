@@ -36,8 +36,8 @@ export function Etapa4Agenda() {
 
   const selecionarAgenda = async (agenda: AgendaDisponivel) => {
     try {
-      await registrarOpcao(agenda.crmMedico, agenda.codEspecialidade, agenda.data, agenda.horario);
-      dispatch({ type: "SELECIONAR_AGENDA", agenda });
+      const opcao = await registrarOpcao(agenda.crmMedico, agenda.codEspecialidade, agenda.data, agenda.horario);
+      dispatch({ type: "SELECIONAR_AGENDA", agenda, opcaoAgendamentoId: opcao.opcaoAgendamentoId });
     } catch (error) {
       toast({ title: "Horário indisponível", description: getErrorMessage(error), variant: "destructive" });
     }

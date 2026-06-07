@@ -50,6 +50,10 @@ public sealed record RegistrarOpcaoRequest(
     DateOnly Data,
     TimeOnly Horario);
 
+public sealed record RegistrarOpcaoResponse(
+    Guid OpcaoAgendamentoId,
+    string Mensagem);
+
 public sealed record ConfirmarConsultaRequest(
     int CrmMedico,
     int CodEspecialidade,
@@ -57,7 +61,8 @@ public sealed record ConfirmarConsultaRequest(
     TimeOnly Horario,
     int CodPaciente,
     string Tipo,
-    int? CodPlanoSaude);
+    int? CodPlanoSaude,
+    Guid? OpcaoAgendamentoId);
 
 public sealed record ComprovanteAgendamentoDto(
     long Codigo,

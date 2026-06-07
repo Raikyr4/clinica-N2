@@ -22,6 +22,11 @@ public sealed class AgendaService(AgendaRepository repository)
         int codEspecialidade,
         int? codPlanoSaude,
         int offset,
-        CancellationToken cancellationToken) =>
-        repository.ListarPorEspecialidadeAsync(codEspecialidade, codPlanoSaude, offset, cancellationToken);
+        CancellationToken cancellationToken)
+    {
+        if (codEspecialidade <= 0)
+            throw new ArgumentException("Informe uma especialidade valida.");
+
+        return repository.ListarPorEspecialidadeAsync(codEspecialidade, codPlanoSaude, offset, cancellationToken);
+    }
 }

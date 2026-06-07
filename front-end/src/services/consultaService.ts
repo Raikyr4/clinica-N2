@@ -1,5 +1,5 @@
 import { http } from "./http";
-import { ComprovanteAgendamento, ConfirmarConsultaRequest } from "@/types/Clinica";
+import { ComprovanteAgendamento, ConfirmarConsultaRequest, RegistrarOpcaoResponse } from "@/types/Clinica";
 
 export async function registrarOpcao(
   crmMedico: number,
@@ -7,12 +7,13 @@ export async function registrarOpcao(
   data: string,
   horario: string,
 ) {
-  await http.post("/api/consultas/registrar-opcao", {
+  const { data: response } = await http.post<RegistrarOpcaoResponse>("/api/consultas/registrar-opcao", {
     crmMedico,
     codEspecialidade,
     data,
     horario,
   });
+  return response;
 }
 
 export async function confirmarConsulta(request: ConfirmarConsultaRequest) {

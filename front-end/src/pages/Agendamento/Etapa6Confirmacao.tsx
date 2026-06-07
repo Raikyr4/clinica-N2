@@ -24,6 +24,7 @@ export function Etapa6Confirmacao() {
         codPaciente: paciente.codigo,
         tipo: state.modalidade!,
         codPlanoSaude: state.codPlanoSaude,
+        opcaoAgendamentoId: state.opcaoAgendamentoId,
       }),
     onSuccess: (comprovante) => dispatch({ type: "SET_COMPROVANTE", comprovante }),
     onError: (error) => toast({ title: "Agendamento nao concluido", description: getErrorMessage(error), variant: "destructive" }),

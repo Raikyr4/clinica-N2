@@ -21,6 +21,7 @@ export interface AgendamentoState {
   medicoNome: string;
   semPreferenciaMedico: boolean;
   agendaSelecionada: AgendaDisponivel | null;
+  opcaoAgendamentoId: string | null;
   pacienteSelecionado: Paciente | null;
   offsetAgenda: number;
   comprovante: ComprovanteAgendamento | null;
@@ -30,7 +31,7 @@ type AgendamentoAction =
   | { type: "SELECIONAR_MODALIDADE"; modalidade: Modalidade; codPlanoSaude?: number | null; planoNome?: string }
   | { type: "SELECIONAR_ESPECIALIDADE"; codigo: number; nome: string }
   | { type: "SELECIONAR_MEDICO"; crm: number | null; nome?: string; semPreferencia: boolean }
-  | { type: "SELECIONAR_AGENDA"; agenda: AgendaDisponivel }
+  | { type: "SELECIONAR_AGENDA"; agenda: AgendaDisponivel; opcaoAgendamentoId: string }
   | { type: "SELECIONAR_PACIENTE"; paciente: Paciente }
   | { type: "SET_OFFSET_AGENDA"; offset: number }
   | { type: "SET_COMPROVANTE"; comprovante: ComprovanteAgendamento }
@@ -48,6 +49,7 @@ const initialState: AgendamentoState = {
   medicoNome: "",
   semPreferenciaMedico: false,
   agendaSelecionada: null,
+  opcaoAgendamentoId: null,
   pacienteSelecionado: null,
   offsetAgenda: 0,
   comprovante: null,
@@ -82,6 +84,7 @@ function reducer(state: AgendamentoState, action: AgendamentoAction): Agendament
         medicoNome: "",
         semPreferenciaMedico: false,
         agendaSelecionada: null,
+        opcaoAgendamentoId: null,
         offsetAgenda: 0,
         etapa: "MEDICO",
       };
@@ -92,11 +95,17 @@ function reducer(state: AgendamentoState, action: AgendamentoAction): Agendament
         medicoNome: action.nome ?? "",
         semPreferenciaMedico: action.semPreferencia,
         agendaSelecionada: null,
+        opcaoAgendamentoId: null,
         offsetAgenda: 0,
         etapa: "AGENDA",
       };
     case "SELECIONAR_AGENDA":
-      return { ...state, agendaSelecionada: action.agenda, etapa: "PACIENTE" };
+      return {
+        ...state,
+        agendaSelecionada: action.agenda,
+        opcaoAgendamentoId: action.opcaoAgendamentoId,
+        etapa: "PACIENTE",
+      };
     case "SELECIONAR_PACIENTE":
       return { ...state, pacienteSelecionado: action.paciente, etapa: "CONFIRMACAO" };
     case "SET_OFFSET_AGENDA":

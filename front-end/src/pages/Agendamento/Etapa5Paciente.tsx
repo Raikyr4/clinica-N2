@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { Loader2, Search, UserPlus } from "lucide-react";
+import { AlertCircle, Loader2, Search, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useAgendamento } from "@/context/AgendamentoContext";
 import { ModalCadastro } from "@/components/ModalCadastro";
@@ -19,13 +19,25 @@ export function Etapa5Paciente() {
   const [nome, setNome] = useState("");
   const [nomeMae, setNomeMae] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
+  const [pacienteNaoEncontrado, setPacienteNaoEncontrado] = useState(false);
 
   const mutation = useMutation({
     mutationFn: () => buscarPacientes(nome, nomeMae),
-    onError: (error) => toast({ title: "Paciente nao encontrado", description: getErrorMessage(error), variant: "destructive" }),
+    onSuccess: (data) => {
+      setPacienteNaoEncontrado(data.length === 0);
+    },
+    onError: (error) => {
+      setPacienteNaoEncontrado(true);
+      toast({ title: "Paciente nao encontrado", description: getErrorMessage(error), variant: "destructive" });
+    },
   });
 
   const selecionarPaciente = (paciente: Paciente) => dispatch({ type: "SELECIONAR_PACIENTE", paciente });
+  const corrigirBusca = () => {
+    setPacienteNaoEncontrado(false);
+    setNome("");
+    setNomeMae("");
+  };
 
   return (
     <section className="space-y-5">
@@ -53,6 +65,32 @@ export function Etapa5Paciente() {
           Novo paciente
         </Button>
       </div>
+
+      {pacienteNaoEncontrado && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="flex flex-col gap-4 p-5">
+            <div className="flex gap-3">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              <div>
+                <h3 className="font-semibold text-amber-900">Paciente nao encontrado</h3>
+                <p className="text-sm text-amber-800">
+                  Se este for o primeiro agendamento do paciente na clinica, cadastre o paciente.
+                  Caso contrario, corrija nome e nome da mae para buscar novamente.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button variant="outline" onClick={corrigirBusca}>
+                Corrigir nome
+              </Button>
+              <Button onClick={() => setModalAberto(true)}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Primeira consulta - cadastrar paciente
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="space-y-3">
         {(mutation.data ?? []).map((paciente) => (

@@ -1,18 +1,19 @@
+%%{init: {'flowchart': {'nodeSpacing': 12, 'rankSpacing': 18}, 'themeVariables': {'fontSize': '12px'}}}%%
 flowchart LR
-    HOME[🏠 Landing Page] --> AG[/agendamento\]
-    AG --> E1[Modalidade]
-    E1 --> E2[Especialidade]
+    HOME[🏠 Landing<br/>Page] --> AG[/agenda-\nmento\]
+    AG --> E1[Moda-\nlidade]
+    E1 --> E2[Especia-\nlidade]
     E2 --> E3[Médico]
     E3 --> E4[Agenda]
     E4 --> E5[Paciente]
-    E5 --> E6[Confirmação]
-    E6 --> E7[Comprovante]
+    E5 --> E6[Confir-\nmação]
+    E6 --> E7[Compro-\nvante]
     E7 --> HOME
 
     E4 -->|Lista de espera| LE[/lista-espera\]
     LE --> HOME
 
-    E5 -->|Cadastrar| MODAL[Modal Cadastro]
+    E5 -->|Cadastrar| MODAL[Modal<br/>Cadastro]
     MODAL --> E6
 
     style HOME fill:#1B4E8A,color:#fff

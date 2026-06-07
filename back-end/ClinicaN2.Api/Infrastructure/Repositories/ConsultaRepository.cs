@@ -1,6 +1,7 @@
 using ClinicaN2.Api.Application.DTOs;
 using ClinicaN2.Api.Infrastructure.Database;
 using Dapper;
+using Npgsql;
 
 namespace ClinicaN2.Api.Infrastructure.Repositories;
 
@@ -28,16 +29,93 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
         return await connection.ExecuteScalarAsync<bool>(command);
     }
 
+    public async Task<Guid> RegistrarOpcaoAsync(RegistrarOpcaoRequest request, CancellationToken cancellationToken)
+    {
+        using var connection = connectionFactory.CreateConnection();
+        var id = Guid.NewGuid();
+        const string sql = """
+            insert into opcoes_agendamento
+                (id, crm_medico, cod_especialidade, data, horario, expira_em)
+            values
+                (@Id, @CrmMedico, @CodEspecialidade, @Data, @Horario, now() + interval '20 minutes')
+            returning id
+            """;
+        var command = new CommandDefinition(
+            sql,
+            new
+            {
+                Id = id,
+                request.CrmMedico,
+                request.CodEspecialidade,
+                request.Data,
+                request.Horario
+            },
+            cancellationToken: cancellationToken);
+        return await connection.ExecuteScalarAsync<Guid>(command);
+    }
+
     public async Task<ComprovanteAgendamentoDto> ConfirmarAsync(ConfirmarConsultaRequest request, CancellationToken cancellationToken)
     {
         using var connection = connectionFactory.CreateConnection();
-        const string sql = """
-            insert into consultas (data, horario, situacao, tipo, crm_medico, cod_especialidade, cod_paciente)
-            values (@Data, @Horario, 0, @Tipo, @CrmMedico, @CodEspecialidade, @CodPaciente)
-            returning codigo
-            """;
-        var codigo = await connection.ExecuteScalarAsync<long>(new CommandDefinition(sql, request, cancellationToken: cancellationToken));
-        return await ObterComprovanteAsync(codigo, cancellationToken) ?? throw new InvalidOperationException("Consulta nao encontrada.");
+        connection.Open();
+        using var transaction = connection.BeginTransaction();
+
+        try
+        {
+            if (request.OpcaoAgendamentoId is not null)
+            {
+                const string validarOpcao = """
+                    select exists (
+                        select 1
+                        from opcoes_agendamento
+                        where id = @OpcaoAgendamentoId
+                          and crm_medico = @CrmMedico
+                          and cod_especialidade = @CodEspecialidade
+                          and data = @Data
+                          and horario = @Horario
+                          and usada = false
+                          and expira_em > now()
+                    )
+                    """;
+                var opcaoValida = await connection.ExecuteScalarAsync<bool>(
+                    new CommandDefinition(validarOpcao, request, transaction, cancellationToken: cancellationToken));
+
+                if (!opcaoValida)
+                    throw new InvalidOperationException("Opcao de agenda expirada ou invalida. Escolha o horario novamente.");
+            }
+
+            const string inserirConsulta = """
+                insert into consultas (data, horario, situacao, tipo, crm_medico, cod_especialidade, cod_paciente)
+                values (@Data, @Horario, 0, @Tipo, @CrmMedico, @CodEspecialidade, @CodPaciente)
+                returning codigo
+                """;
+            var codigo = await connection.ExecuteScalarAsync<long>(
+                new CommandDefinition(inserirConsulta, request, transaction, cancellationToken: cancellationToken));
+
+            if (request.OpcaoAgendamentoId is not null)
+            {
+                const string usarOpcao = """
+                    update opcoes_agendamento
+                    set usada = true
+                    where id = @OpcaoAgendamentoId
+                    """;
+                await connection.ExecuteAsync(
+                    new CommandDefinition(usarOpcao, request, transaction, cancellationToken: cancellationToken));
+            }
+
+            transaction.Commit();
+            return await ObterComprovanteAsync(codigo, cancellationToken) ?? throw new InvalidOperationException("Consulta nao encontrada.");
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            transaction.Rollback();
+            throw new InvalidOperationException("Este horario acabou de ser ocupado. Escolha outro horario.");
+        }
+        catch
+        {
+            transaction.Rollback();
+            throw;
+        }
     }
 
     public async Task<ComprovanteAgendamentoDto?> ObterComprovanteAsync(long codigo, CancellationToken cancellationToken)

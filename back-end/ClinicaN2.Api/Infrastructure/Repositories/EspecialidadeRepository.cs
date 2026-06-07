@@ -21,7 +21,7 @@ public sealed class EspecialidadeRepository(IDbConnectionFactory connectionFacto
             : """
               select distinct e.codigo::int as Codigo, e.nome as Nome
               from especialidades_medicas e
-              join medico_especialidade me on me.cod_especialidade = e.codigo
+              join agenda_atendimento a on a.cod_especialidade = e.codigo
               order by e.nome
               """;
 
