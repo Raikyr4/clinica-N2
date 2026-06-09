@@ -28,6 +28,18 @@ O script cria as tabelas dentro do banco `postgres` e insere dados de teste para
 
 O script tambem cria `opcoes_agendamento` e o indice `ux_consultas_horario_ocupado`, usados para registrar a opcao escolhida antes da confirmacao e impedir dois agendamentos ativos no mesmo horario.
 
+Para popular o banco com uma massa completa para testar todos os cenarios da atividade, execute tambem:
+
+```text
+back-end/Scripts/seed-test-data.sql
+```
+
+Guia com todos os cenarios e dados de teste:
+
+```text
+docs/cenarios-teste-banco.md
+```
+
 ## Connection string
 
 Arquivo:

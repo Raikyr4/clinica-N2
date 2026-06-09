@@ -61,9 +61,9 @@ public sealed class AgendaRepository(IDbConnectionFactory connectionFactory)
                   a.cod_especialidade::int as CodEspecialidade,
                   e.nome as NomeEspecialidade,
                   to_char(d.data, 'YYYY-MM-DD') as Data,
-                  to_char(make_time(a.hora, a.minuto, 0), 'HH24:MI:SS') as Horario,
+                  to_char(make_time(a.hora::int, a.minuto::int, 0), 'HH24:MI:SS') as Horario,
                   d.data as data_ordem,
-                  make_time(a.hora, a.minuto, 0) as hora_ordem
+                  make_time(a.hora::int, a.minuto::int, 0) as hora_ordem
               from dias d
               join agenda_atendimento a on a.dia = d.dia
               join medicos m on m.crm = a.crm_medico
@@ -74,13 +74,13 @@ public sealed class AgendaRepository(IDbConnectionFactory connectionFactory)
                     select 1 from agenda_plano ap
                     where ap.agenda_id = a.id and ap.cod_plano_saude = @CodPlanoSaude
                 ))
-                and (d.data > current_date or make_time(a.hora, a.minuto, 0) > current_time)
+                and (d.data > current_date or make_time(a.hora::int, a.minuto::int, 0) > current_time)
                 and not exists (
                     select 1 from consultas c
                     where c.crm_medico = a.crm_medico
                       and c.cod_especialidade = a.cod_especialidade
                       and c.data = d.data
-                      and c.horario = make_time(a.hora, a.minuto, 0)
+                      and c.horario = make_time(a.hora::int, a.minuto::int, 0)
                       and c.situacao in (0, 1)
                 )
           )

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AgendamentoProvider, useAgendamento } from "@/context/AgendamentoContext";
 import { Stepper } from "@/components/Stepper";
 import { Comprovante } from "@/components/Comprovante";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Etapa1Modalidade } from "./Etapa1Modalidade";
@@ -11,6 +12,7 @@ import { Etapa3Medico } from "./Etapa3Medico";
 import { Etapa4Agenda } from "./Etapa4Agenda";
 import { Etapa5Paciente } from "./Etapa5Paciente";
 import { Etapa6Confirmacao } from "./Etapa6Confirmacao";
+import { useState } from "react";
 
 const textos = {
   MODALIDADE: {
@@ -46,13 +48,13 @@ const textos = {
 function AgendamentoConteudo() {
   const { state, dispatch } = useAgendamento();
   const navigate = useNavigate();
+  const [modalDesistirAberto, setModalDesistirAberto] = useState(false);
   const texto = textos[state.etapa];
+
   const cancelarAgendamento = () => {
-    const confirmar = window.confirm("Deseja desistir do agendamento? O caso de uso sera encerrado.");
-    if (confirmar) {
-      dispatch({ type: "REINICIAR" });
-      navigate("/");
-    }
+    dispatch({ type: "REINICIAR" });
+    setModalDesistirAberto(false);
+    navigate("/");
   };
 
   return (
@@ -82,7 +84,7 @@ function AgendamentoConteudo() {
                 Novo agendamento
               </Button>
               {state.etapa !== "COMPROVANTE" && (
-                <Button variant="outline" onClick={cancelarAgendamento}>
+                <Button variant="outline" onClick={() => setModalDesistirAberto(true)}>
                   <XCircle className="mr-2 h-4 w-4" />
                   Desistir
                 </Button>
@@ -126,6 +128,17 @@ function AgendamentoConteudo() {
           </CardContent>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={modalDesistirAberto}
+        onOpenChange={setModalDesistirAberto}
+        title="Desistir do agendamento?"
+        description="Ao confirmar, o agendamento atual sera encerrado e os dados preenchidos nesta tentativa serao descartados."
+        confirmLabel="Sim, desistir"
+        cancelLabel="Continuar agendamento"
+        variant="destructive"
+        onConfirm={cancelarAgendamento}
+      />
     </main>
   );
 }

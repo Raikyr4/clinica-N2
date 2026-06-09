@@ -25,7 +25,16 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
                   and situacao in (0, 1)
             )
             """;
-        var command = new CommandDefinition(sql, new { CrmMedico = crmMedico, CodEspecialidade = codEspecialidade, Data = data, Horario = horario }, cancellationToken: cancellationToken);
+        var command = new CommandDefinition(
+            sql,
+            new
+            {
+                CrmMedico = crmMedico,
+                CodEspecialidade = codEspecialidade,
+                Data = data.ToDateTime(TimeOnly.MinValue),
+                Horario = horario.ToTimeSpan()
+            },
+            cancellationToken: cancellationToken);
         return await connection.ExecuteScalarAsync<bool>(command);
     }
 
@@ -40,17 +49,7 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
                 (@Id, @CrmMedico, @CodEspecialidade, @Data, @Horario, now() + interval '20 minutes')
             returning id
             """;
-        var command = new CommandDefinition(
-            sql,
-            new
-            {
-                Id = id,
-                request.CrmMedico,
-                request.CodEspecialidade,
-                request.Data,
-                request.Horario
-            },
-            cancellationToken: cancellationToken);
+        var command = new CommandDefinition(sql, CriarParametrosOpcao(id, request), cancellationToken: cancellationToken);
         return await connection.ExecuteScalarAsync<Guid>(command);
     }
 
@@ -78,7 +77,7 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
                     )
                     """;
                 var opcaoValida = await connection.ExecuteScalarAsync<bool>(
-                    new CommandDefinition(validarOpcao, request, transaction, cancellationToken: cancellationToken));
+                    new CommandDefinition(validarOpcao, CriarParametrosConfirmacao(request), transaction, cancellationToken: cancellationToken));
 
                 if (!opcaoValida)
                     throw new InvalidOperationException("Opcao de agenda expirada ou invalida. Escolha o horario novamente.");
@@ -90,7 +89,7 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
                 returning codigo
                 """;
             var codigo = await connection.ExecuteScalarAsync<long>(
-                new CommandDefinition(inserirConsulta, request, transaction, cancellationToken: cancellationToken));
+                new CommandDefinition(inserirConsulta, CriarParametrosConfirmacao(request), transaction, cancellationToken: cancellationToken));
 
             if (request.OpcaoAgendamentoId is not null)
             {
@@ -100,7 +99,7 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
                     where id = @OpcaoAgendamentoId
                     """;
                 await connection.ExecuteAsync(
-                    new CommandDefinition(usarOpcao, request, transaction, cancellationToken: cancellationToken));
+                    new CommandDefinition(usarOpcao, new { request.OpcaoAgendamentoId }, transaction, cancellationToken: cancellationToken));
             }
 
             transaction.Commit();
@@ -149,4 +148,25 @@ public sealed class ConsultaRepository(IDbConnectionFactory connectionFactory)
         var command = new CommandDefinition(sql, new { Codigo = codigo }, cancellationToken: cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<ComprovanteAgendamentoDto>(command);
     }
+
+    private static object CriarParametrosOpcao(Guid id, RegistrarOpcaoRequest request) => new
+    {
+        Id = id,
+        request.CrmMedico,
+        request.CodEspecialidade,
+        Data = request.Data.ToDateTime(TimeOnly.MinValue),
+        Horario = request.Horario.ToTimeSpan()
+    };
+
+    private static object CriarParametrosConfirmacao(ConfirmarConsultaRequest request) => new
+    {
+        request.CrmMedico,
+        request.CodEspecialidade,
+        Data = request.Data.ToDateTime(TimeOnly.MinValue),
+        Horario = request.Horario.ToTimeSpan(),
+        request.CodPaciente,
+        request.Tipo,
+        request.CodPlanoSaude,
+        request.OpcaoAgendamentoId
+    };
 }

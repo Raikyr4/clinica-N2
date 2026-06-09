@@ -50,7 +50,7 @@ public sealed class PacienteRepository(IDbConnectionFactory connectionFactory)
             """;
 
         var codigo = await connection.ExecuteScalarAsync<int>(
-            new CommandDefinition(insertPaciente, request, transaction, cancellationToken: cancellationToken));
+            new CommandDefinition(insertPaciente, CriarParametrosCadastro(request), transaction, cancellationToken: cancellationToken));
 
         if (request.CodPlanoSaude is not null)
         {
@@ -95,4 +95,19 @@ public sealed class PacienteRepository(IDbConnectionFactory connectionFactory)
         var command = new CommandDefinition(sql, new { Codigo = codigo }, cancellationToken: cancellationToken);
         return await connection.QuerySingleOrDefaultAsync<PacienteDto>(command);
     }
+
+    private static object CriarParametrosCadastro(CadastrarPacienteRequest request) => new
+    {
+        request.Nome,
+        request.NomeMae,
+        DataNasc = request.DataNasc.ToDateTime(TimeOnly.MinValue),
+        request.Sexo,
+        request.Endereco,
+        request.Telefone,
+        request.Email,
+        request.Cpf,
+        request.NomeResponsavel,
+        request.GrauParentesco,
+        request.TelefoneResponsavel
+    };
 }
